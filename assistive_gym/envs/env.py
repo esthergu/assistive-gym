@@ -236,6 +236,22 @@ class AssistiveEnv(gym.Env):
         else:
             reward_arm_manipulation_tool_pressures = 0.0
 
+		# --- Bed Bathing ---
+		if self.task in ['bed_bathing']:
+			human_contact_points = len(p.getContactPoints(bodyA=self.human, bodyB=self.bed, physicsClientId=self.id))
+			joints_contact_points=[]
+			for i in range(3, 10):
+				if len(p.getContactPoints(bodyA=self.human, bodyB=self.bed, linkIndexA=i))>0:
+					joints_contact_points.append(1)
+				else:
+					joints_contact_points.append(0)
+			joints_contact_points=np.array(joints_contact_points)
+			joints_weight = np.array([1,1,1,1,1,1,1]) #To be tuned
+			joints_contact_grade = np.sum(joints_contact_points * joints_weight)			
+			
+			reward_joints_contact = 0 if joints_contact_grade>5 else -reward_joints_contact 
+		
+		
         return self.C_v*reward_velocity + self.C_f*reward_force_nontarget + self.C_hf*reward_high_target_forces + self.C_fd*reward_food_hit_human + self.C_fdv*reward_food_velocities + self.C_d*reward_dressing_force + self.C_p*reward_arm_manipulation_tool_pressures
 
     def reset_robot_joints(self):
