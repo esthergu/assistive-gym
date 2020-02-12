@@ -237,7 +237,7 @@ class AssistiveEnv(gym.Env):
             reward_arm_manipulation_tool_pressures = 0.0
 
 		# --- Bed Bathing ---
-		if self.task in ['bed_bathing']:
+		if self.task in ['bathing']:
 			#Penalize hanging links (under debug)
 			link_index=[9, 7, 5, 2]
 			
@@ -262,9 +262,8 @@ class AssistiveEnv(gym.Env):
 			joints_preferred_weights=[1,1,1,1,1,1,1]
 			joints_positions=[]
 			for i in joints_index_kinematics:
-                joint_info = p.getJointInfo(self.human, j, physicsClientId=self.id)
-                joint_name = joint_info[1]
-                joint_pos = joint_positions[i]
+                joint_info = p.getJointInfo(self.human, i, physicsClientId=self.id)
+                joint_pos = abs(joint_info[0])
                 joints_positions.append(joint_pos)
 				# print(joint_name, joint_pos, lower_limit, upper_limit)
 			for i in range(len(joints_index_kinematics)):
