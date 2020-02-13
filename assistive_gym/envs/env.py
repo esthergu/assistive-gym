@@ -239,7 +239,7 @@ class AssistiveEnv(gym.Env):
 		# --- Bed Bathing ---
 		if self.task in ['bathing']:
 			#Penalize hanging links (under debug)
-			link_index=[9, 7, 5, 2]
+			link_index=[9, 7, 5]
 			
 
 			joints_contact_points=[]
@@ -250,10 +250,13 @@ class AssistiveEnv(gym.Env):
 					joints_contact_points.append(0)
 			
 			joints_contact_points=np.array(joints_contact_points)
-			joints_weight = np.array([1,1,1,1,1,1,1]) #To be tuned
+			joints_weight = np.array([0.1,0.2,1]) #To be tuned
 			joints_contact_grade = np.sum(joints_contact_points * joints_weight)			
+			reward_joints_contact = joints_contact_grade
+			#reward_joints_contact = 0 if joints_contact_grade>5 else -reward_joints_contact 
 			
-			reward_joints_contact = 0 if joints_contact_grade>5 else -reward_joints_contact 
+			#Penalize joint height
+			
 			
 			#Penalize joint kinematics
 			reward_joints_kinematics = 0
