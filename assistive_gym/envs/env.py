@@ -261,16 +261,16 @@ class AssistiveEnv(gym.Env):
             #Penalize joint kinematics
             reward_joints_kinematics = 0
             joints_index_kinematics=[8, 9, 7, 6, 1, 0]   #Wrist flexion, wrist adduction, elbow supination, elbow flexion, shoulder adduction, shoulder flexion
-            joints_preferred_ranges=[(0,0), (0,0), (0,0), (0,0), (0,0), (0,0), (0,0)]
+            joints_preferred_ranges=[(-18,10), (-5,5), (0,35), (0,26), (0,7), (0,20)]
             joints_preferred_weights=[0.1,0.1,0.1,0.1,0.1,0.1,0.1]
-            joints_positions=[]
+            p_joint_positions=[]
             for i in joints_index_kinematics:
                 joint_info = p.getJointInfo(self.human, i, physicsClientId=self.id)
-                joint_pos = abs(joint_info[0])
-                joints_positions.append(joint_pos)
+                joint_pos = joint_info[0]
+                p_joint_positions.append(joint_pos)
                 # print(joint_name, joint_pos, lower_limit, upper_limit)
             for i in range(len(joints_index_kinematics)):
-                if joint_positions[i] >= joints_prefered_ranges[i][0] and joint_positions[i] <= joints_prefered_ranges[i][1]:
+                if p_joint_positions[i] >= joints_prefered_ranges[i][0] and p_joint_positions[i] <= joints_prefered_ranges[i][1]:
                     pass
                 else:
                     reward_joints_kinematics = reward_joints_kinematics - joints_preferred_weights[i]
