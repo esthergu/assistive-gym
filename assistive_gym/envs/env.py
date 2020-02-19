@@ -237,27 +237,7 @@ class AssistiveEnv(gym.Env):
             reward_arm_manipulation_tool_pressures = 0.0
 
         # --- Bed Bathing ---
-        if self.task in ['bathing']:
-            #Penalize hanging links (under debug)
-            link_index=[9, 7, 5]
-            
-
-            joints_contact_points=[]
-            for i in joints_index:
-                if len(p.getContactPoints(bodyA=self.human, bodyB=self.bed, linkIndexA=i))>0:
-                    joints_contact_points.append(1)
-                else:
-                    joints_contact_points.append(0)
-            
-            joints_contact_points=np.array(joints_contact_points)
-            joints_weight = np.array([0.1,0.2,1]) #To be tuned
-            joints_contact_grade = np.sum(joints_contact_points * joints_weight)            
-            reward_joints_contact = joints_contact_grade
-            #reward_joints_contact = 0 if joints_contact_grade>5 else -reward_joints_contact 
-            
-            #Penalize joint height
-            
-            
+        if self.task in ['bed_bathing']:
             #Penalize joint kinematics
             reward_joints_kinematics = 0
             joints_index_kinematics=[8, 9, 7, 6, 1, 0]   #Wrist flexion, wrist adduction, elbow supination, elbow flexion, shoulder adduction, shoulder flexion
@@ -270,7 +250,7 @@ class AssistiveEnv(gym.Env):
                 p_joint_positions.append(joint_pos)
                 # print(joint_name, joint_pos, lower_limit, upper_limit)
             for i in range(len(joints_index_kinematics)):
-                if p_joint_positions[i] >= joints_prefered_ranges[i][0] and p_joint_positions[i] <= joints_prefered_ranges[i][1]:
+                if p_joint_positions[i] >= joints_preferred_ranges[i][0] and p_joint_positions[i] <= joints_preferred_ranges[i][1]:
                     pass
                 else:
                     reward_joints_kinematics = reward_joints_kinematics - joints_preferred_weights[i]

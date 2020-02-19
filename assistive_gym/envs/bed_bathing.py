@@ -7,8 +7,9 @@ from .env import AssistiveEnv
 
 class BedBathingEnv(AssistiveEnv):
     def __init__(self, robot_type='pr2', human_control=False):
+        self.hanging_links=[0,0,0]
         super(BedBathingEnv, self).__init__(robot_type=robot_type, task='bed_bathing', human_control=human_control, frame_skip=5, time_step=0.02, action_robot_len=7, action_human_len=(10 if human_control else 0), obs_robot_len=24, obs_human_len=(28 if human_control else 0))
-
+        
     def step(self, action):
         self.take_step(action, robot_arm='left', gains=self.config('robot_gains'), forces=self.config('robot_forces'), human_gains=0.05)
 
@@ -23,6 +24,20 @@ class BedBathingEnv(AssistiveEnv):
         reward_action = -np.sum(np.square(action)) # Penalize actions
         reward_new_contact_points = new_contact_points # Reward new contact points on a person
 
+        #Penalize hanging links
+        link_index=[9, 7, 5]  #hand, forearm, upperarm
+        for i in range(len(link_index)):
+            if len(p.getContactPoints(bodyA=self.human, bodyB=self.bed, linkIndexA=link_index[i]))>0:
+                self.hanging_links[i] = 0
+            else:
+                self.hanging_links[i] = self.hanging_links[i] + 1
+        
+        joints_contact_points=np.array(self.hanging_links)
+        joints_contact_points[joints_contact_points<30] = 0
+        joints_weight = np.array([0.1,0.2,1]) #To be tuned
+        reward_joints_contact = -np.sum(joints_contact_points * joints_weight)
+        #reward_joints_contact = 0 if joints_contact_grade>5 else -reward_joints_contact 
+        
         reward = self.config('distance_weight')*reward_distance + self.config('action_weight')*reward_action + self.config('wiping_reward_weight')*reward_new_contact_points + preferences_score
 
         if self.gui and tool_force_on_human > 0:
