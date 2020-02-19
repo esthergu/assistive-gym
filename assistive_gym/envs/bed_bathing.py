@@ -36,7 +36,25 @@ class BedBathingEnv(AssistiveEnv):
         joints_contact_points[joints_contact_points<30] = 0
         joints_weight = np.array([0.1,0.2,1]) #To be tuned
         reward_joints_contact = -np.sum(joints_contact_points * joints_weight)
-        #reward_joints_contact = 0 if joints_contact_grade>5 else -reward_joints_contact 
+        
+        #Penalize joint kinematics
+        reward_joints_kinematics = 0
+        joints_index_kinematics=[8, 9, 7, 6, 1, 0]   #Wrist flexion, wrist adduction, elbow supination, elbow flexion, shoulder adduction, shoulder flexion
+        joints_preferred_ranges=[(-18,10), (-5,5), (0,35), (0,26), (0,7), (0,20)]
+        joints_preferred_weights=[0.1,0.1,0.1,0.1,0.1,0.1,0.1]
+        p_joint_positions=[]
+        for i in joints_index_kinematics:
+            joint_info = p.getJointInfo(self.human, i, physicsClientId=self.id)
+            joint_pos = joint_info[0]
+            p_joint_positions.append(joint_pos)
+            # print(joint_name, joint_pos, lower_limit, upper_limit)
+        for i in range(len(joints_index_kinematics)):
+            if p_joint_positions[i] >= joints_preferred_ranges[i][0] and p_joint_positions[i] <= joints_preferred_ranges[i][1]:
+                pass
+            else:
+                reward_joints_kinematics = reward_joints_kinematics - joints_preferred_weights[i]
+        
+        
         
         reward = self.config('distance_weight')*reward_distance + self.config('action_weight')*reward_action + self.config('wiping_reward_weight')*reward_new_contact_points + preferences_score
 
