@@ -56,7 +56,7 @@ class BedBathingEnv(AssistiveEnv):
         
         
         
-        reward = self.config('distance_weight')*reward_distance + self.config('action_weight')*reward_action + self.config('wiping_reward_weight')*reward_new_contact_points + preferences_score
+        reward = self.config('distance_weight')*reward_distance + self.config('action_weight')*reward_action + self.config('wiping_reward_weight')*reward_new_contact_points + self.config('kinematics_weight')*reward_joints_kinematics + self.config('hanging_link_weight') * reward_joints_contact + preferences_score
 
         if self.gui and tool_force_on_human > 0:
             print('Task success:', self.task_success, 'Force at tool on human:', tool_force_on_human, reward_new_contact_points)
