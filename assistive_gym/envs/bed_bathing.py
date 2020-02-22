@@ -34,13 +34,14 @@ class BedBathingEnv(AssistiveEnv):
         
         joints_contact_points=np.array(self.hanging_links)
         joints_contact_points[joints_contact_points<30] = 0
-        joints_weight = np.array([0.1,0.2,1]) #To be tuned
+        joints_weight = np.array([0.1,0.3,0.1]) #To be tuned
         reward_joints_contact = -np.sum(joints_contact_points * joints_weight)
+        
         
         #Penalize joint kinematics
         reward_joints_kinematics = 0
-        joints_index_kinematics=[8, 9, 7, 6, 1, 0]   #Wrist flexion, wrist adduction, elbow supination, elbow flexion, shoulder adduction, shoulder flexion
-        joints_preferred_ranges=[(-18,10), (-5,5), (0,35), (0,26), (0,7), (0,20)]
+        joints_index_kinematics=[8, 9, 7, 6, 1, 0]   #Wrist flexion, wrist adduction, elbow supination, elbow extension, shoulder adduction, shoulder flexion
+        joints_preferred_ranges=[(-18,10), (-5,5), (0,35), (-26,0), (0,7), (0,20)]
         joints_preferred_weights=[0.1,0.1,0.1,0.1,0.1,0.1,0.1]
         p_joint_positions=[]
         for i in joints_index_kinematics:
@@ -55,7 +56,9 @@ class BedBathingEnv(AssistiveEnv):
                 reward_joints_kinematics = reward_joints_kinematics - joints_preferred_weights[i]
         
         
-        
+        #print('Wiping reward:' + str(self.config('wiping_reward_weight')*reward_new_contact_points))
+        #print('Kinematics reward:' + str(self.config('kinematics_weight')*reward_joints_kinematics))
+        #print('Joints reward:' + str(self.config('hanging_link_weight') * reward_joints_contact))
         reward = self.config('distance_weight')*reward_distance + self.config('action_weight')*reward_action + self.config('wiping_reward_weight')*reward_new_contact_points + self.config('kinematics_weight')*reward_joints_kinematics + self.config('hanging_link_weight') * reward_joints_contact + preferences_score
 
         if self.gui and tool_force_on_human > 0:
@@ -152,7 +155,9 @@ class BedBathingEnv(AssistiveEnv):
         self.robot_lower_limits = self.robot_lower_limits[self.robot_left_arm_joint_indices]
         self.robot_upper_limits = self.robot_upper_limits[self.robot_left_arm_joint_indices]
         self.reset_robot_joints()
-
+        
+        self.hanging_links=[0,0,0]
+        
         friction = 5
         p.changeDynamics(self.bed, -1, lateralFriction=friction, spinningFriction=friction, rollingFriction=friction, physicsClientId=self.id)
 
