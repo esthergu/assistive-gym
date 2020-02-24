@@ -40,14 +40,15 @@ class BedBathingEnv(AssistiveEnv):
         
         #Penalize joint kinematics
         reward_joints_kinematics = 0
-        joints_index_kinematics=[8, 9, 7, 6, 1, 0]   #Wrist flexion, wrist adduction, elbow supination, elbow extension, shoulder adduction, shoulder flexion
-        joints_preferred_ranges=[(-18,10), (-5,5), (0,35), (-26,0), (0,7), (0,20)]
+        joints_index_kinematics=[8, 9, 7, 6, 3, 4]   #Wrist flexion, wrist adduction, elbow supination, elbow extension, shoulder adduction, shoulder extension
+        joints_preferred_ranges=[(-18,10), (-5,5), (0,35), (-26,0), (0,7), (-20,0)]
         joints_preferred_weights=[1,1,1.5,1.3,1,1]
         p_joint_positions=[]
         for i in joints_index_kinematics:
-            joint_info = p.getJointInfo(self.human, i, physicsClientId=self.id)
+            joint_info = p.getJointState(self.human, i, physicsClientId=self.id)
             joint_pos = joint_info[0]
-            p_joint_positions.append(joint_pos)
+            joint_pos_degree = joint_pos/3.14*180
+            p_joint_positions.append(joint_pos_degree)
             # print(joint_name, joint_pos, lower_limit, upper_limit)
         for i in range(len(joints_index_kinematics)):
             if p_joint_positions[i] >= joints_preferred_ranges[i][0] and p_joint_positions[i] <= joints_preferred_ranges[i][1]:
