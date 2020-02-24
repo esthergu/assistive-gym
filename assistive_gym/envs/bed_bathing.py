@@ -7,7 +7,7 @@ from .env import AssistiveEnv
 
 class BedBathingEnv(AssistiveEnv):
     def __init__(self, robot_type='pr2', human_control=False):
-        self.hanging_links=[0,0,0]
+        self.hanging_links=[0,0]
         super(BedBathingEnv, self).__init__(robot_type=robot_type, task='bed_bathing', human_control=human_control, frame_skip=5, time_step=0.02, action_robot_len=7, action_human_len=(10 if human_control else 0), obs_robot_len=24, obs_human_len=(28 if human_control else 0))
         
     def step(self, action):
@@ -34,7 +34,7 @@ class BedBathingEnv(AssistiveEnv):
         
         joints_contact_points=np.array(self.hanging_links)
         joints_contact_points[joints_contact_points<30] = 0
-        joints_weight = np.array([0.1,0.5])
+        joints_weight = np.array([0.1,0.3])
         reward_joints_contact = -np.sum(joints_contact_points * joints_weight)
         
         
@@ -42,7 +42,7 @@ class BedBathingEnv(AssistiveEnv):
         reward_joints_kinematics = 0
         joints_index_kinematics=[8, 9, 7, 6, 1, 0]   #Wrist flexion, wrist adduction, elbow supination, elbow extension, shoulder adduction, shoulder flexion
         joints_preferred_ranges=[(-18,10), (-5,5), (0,35), (-26,0), (0,7), (0,20)]
-        joints_preferred_weights=[0.1,0.1,0.1,0.1,0.1,0.1,0.1]
+        joints_preferred_weights=[1,1,1.5,1.3,1,1]
         p_joint_positions=[]
         for i in joints_index_kinematics:
             joint_info = p.getJointInfo(self.human, i, physicsClientId=self.id)
@@ -56,9 +56,9 @@ class BedBathingEnv(AssistiveEnv):
                 reward_joints_kinematics = reward_joints_kinematics - joints_preferred_weights[i]
         
         
-        #print('Wiping reward:' + str(self.config('wiping_reward_weight')*reward_new_contact_points))
-        #print('Kinematics reward:' + str(self.config('kinematics_weight')*reward_joints_kinematics))
-        #print('Joints reward:' + str(self.config('hanging_link_weight') * reward_joints_contact))
+        print('Wiping reward:' + str(self.config('wiping_reward_weight')*reward_new_contact_points))
+        print('Kinematics reward:' + str(self.config('kinematics_weight')*reward_joints_kinematics))
+        print('Joints reward:' + str(self.config('hanging_link_weight') * reward_joints_contact))
         reward = self.config('distance_weight')*reward_distance + self.config('action_weight')*reward_action + self.config('wiping_reward_weight')*reward_new_contact_points + self.config('kinematics_weight')*reward_joints_kinematics + self.config('hanging_link_weight') * reward_joints_contact + preferences_score
 
         if self.gui and tool_force_on_human > 0:
@@ -156,7 +156,7 @@ class BedBathingEnv(AssistiveEnv):
         self.robot_upper_limits = self.robot_upper_limits[self.robot_left_arm_joint_indices]
         self.reset_robot_joints()
         
-        self.hanging_links=[0,0,0]
+        self.hanging_links=[0,0]
         
         friction = 5
         p.changeDynamics(self.bed, -1, lateralFriction=friction, spinningFriction=friction, rollingFriction=friction, physicsClientId=self.id)
