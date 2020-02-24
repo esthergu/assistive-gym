@@ -25,7 +25,7 @@ class BedBathingEnv(AssistiveEnv):
         reward_new_contact_points = new_contact_points # Reward new contact points on a person
 
         #Penalize hanging links
-        link_index=[9, 7, 5]  #hand, forearm, upperarm
+        link_index=[9, 5]  #hand, upperarm
         for i in range(len(link_index)):
             if len(p.getContactPoints(bodyA=self.human, bodyB=self.bed, linkIndexA=link_index[i]))>0:
                 self.hanging_links[i] = 0
@@ -34,7 +34,7 @@ class BedBathingEnv(AssistiveEnv):
         
         joints_contact_points=np.array(self.hanging_links)
         joints_contact_points[joints_contact_points<30] = 0
-        joints_weight = np.array([0.1,0.3,0.1]) #To be tuned
+        joints_weight = np.array([0.1,0.5])
         reward_joints_contact = -np.sum(joints_contact_points * joints_weight)
         
         
