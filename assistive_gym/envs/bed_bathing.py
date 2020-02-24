@@ -56,9 +56,9 @@ class BedBathingEnv(AssistiveEnv):
                 reward_joints_kinematics = reward_joints_kinematics - joints_preferred_weights[i]
         
         
-        print('Wiping reward:' + str(self.config('wiping_reward_weight')*reward_new_contact_points))
-        print('Kinematics reward:' + str(self.config('kinematics_weight')*reward_joints_kinematics))
-        print('Joints reward:' + str(self.config('hanging_link_weight') * reward_joints_contact))
+        #print('Wiping reward:' + str(self.config('wiping_reward_weight')*reward_new_contact_points))
+        #print('Kinematics reward:' + str(self.config('kinematics_weight')*reward_joints_kinematics))
+        #print('Joints reward:' + str(self.config('hanging_link_weight') * reward_joints_contact))
         reward = self.config('distance_weight')*reward_distance + self.config('action_weight')*reward_action + self.config('wiping_reward_weight')*reward_new_contact_points + self.config('kinematics_weight')*reward_joints_kinematics + self.config('hanging_link_weight') * reward_joints_contact + preferences_score
 
         if self.gui and tool_force_on_human > 0:
