@@ -56,7 +56,6 @@ class BedBathingEnv(AssistiveEnv):
             else:
                 reward_joints_kinematics = reward_joints_kinematics - joints_preferred_weights[i]
         
-        
         #print('Wiping reward:' + str(self.config('wiping_reward_weight')*reward_new_contact_points))
         #print('Kinematics reward:' + str(self.config('kinematics_weight')*reward_joints_kinematics))
         #print('Joints reward:' + str(self.config('hanging_link_weight') * reward_joints_contact))
