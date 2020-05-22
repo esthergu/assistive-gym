@@ -413,4 +413,3 @@ class AssistiveEnv(gym.Env):
             self.world_creation = WorldCreation(self.id, robot_type=self.robot_type, task=self.task, time_step=self.time_step, np_random=self.np_random, config=self.config)
             self.util = Util(self.id, self.np_random)
             # print('Physics server ID:', self.id)
-
